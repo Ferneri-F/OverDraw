@@ -21,10 +21,12 @@ public:
     void draw() { //
         Fl_Box::draw();
         fl_color(FL_BLACK);
-        fl_line_style(FL_SOLID, 5);
+        fl_line_style(FL_SOLID, 2);
 
         for (size_t i = 1; i < coordinates.size(); i++) {
-            fl_line(coordinates[i - 1].first, coordinates[i - 1].second, coordinates[i].first, coordinates[i].second);
+            fl_line(coordinates[i - 1].first, coordinates[i - 1].second, 
+                coordinates[i].first, coordinates[i].second);
+        
         }
     }
 
@@ -39,7 +41,7 @@ public:
             redraw(); //redraw tells the widget to update on the screen
             return 1;
 
-        //if mouse is clicked and dragged
+            //if mouse is clicked and dragged
         case FL_DRAG:
             if (isDrawing) {
                 mouseX = Fl::event_x();
@@ -50,29 +52,38 @@ public:
             return 1;
         case FL_RELEASE: //if mouse is released
             isDrawing = false;
+            coordinates.push_back(std::make_pair(mouseX, mouseY));
+            coordinates.clear();
             return 1;
+
+       /* case FL_MOVE:
+            isDrawing = false;
+            coordinates.clear();
+            return 1;*/
         }
         return Fl_Box::handle(event);
     }
 };
-  
 
-  
+
+
 
 
 int main(int argc, char** argv) {
+    
     Fl_Window* window = new Fl_Window(600, 800, "Drawing");
+    //Fl_Box* sidebar = new Fl_Box(0, 0, 100, 400, "test");
     paintWindow* paintWin = new paintWindow(600, 800, 10, 10, "");
     window->end();
     window->show();
     return Fl::run();
-   
+
 
     return 0;
 }
 
 //Current issues/ future changes:
-//- line trys to connect to the next coordinate
+//
 //- line is not that smooth
 //- need to figure out how to store location of each and every line instead of one changing pair of coordinates
 //
