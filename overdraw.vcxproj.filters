@@ -29,5 +29,8 @@
     <ClInclude Include="topBar.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="betterPainter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

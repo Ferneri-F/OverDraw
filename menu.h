@@ -1,26 +1,32 @@
-#pragma once
-class DraggableWindow : public Fl_Double_Window {
+#include <Fl/FL_Button.H>
+#include <Fl_Widget.H>
+
+class DraggableWindow : public Fl_Window {
 
 private:
     int previous_x, previous_y;
     bool dragging;
     int dragHeight;
 
+
     static void TimerCallback(void* data) { //timer that refreshes the page every 0.01ms
         DraggableWindow* window = static_cast<DraggableWindow*>(data);
         if (window->dragging) {
             window->position(Fl::event_x() - window->previous_x, Fl::event_y() - window->previous_y);
             Fl::repeat_timeout(0.001, TimerCallback, data);
+            
         }
     }
 public:
-
-
-
     DraggableWindow(int x, int y, int w, int h, const char* label = 0)
-        : Fl_Double_Window(x, y, w, h, label) , dragging(false) , dragHeight(15) {}
+        : Fl_Window(x, y, w, h, label), dragging(false), dragHeight(15) {}
 
-   
+    static void whenPushed(Fl_Widget* button, void* data) { //correct way to do callback
+
+        if (button->Fl_Widget::when() & FL_WHEN_RELEASE) printf("test tset test"); //correct way to check for FL_WHEN_RELEASE of button
+    }
+    
+
 
     int handle(int event)  {
         switch (event) {
@@ -37,6 +43,7 @@ public:
         case FL_RELEASE:
             dragging = false;
             //position(Fl::event_x, Fl::event_y);
+         
             redraw();
             return 1;
         case FL_DRAG:
@@ -46,6 +53,6 @@ public:
             return Fl_Window::handle(event);
         }
     }
-
+    
 
 };
