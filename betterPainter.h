@@ -12,7 +12,7 @@ private:
 	bool isDrawing;
 
 	std::vector<std::pair<int, int>> coordinates; //vector of coordinates as
-	std::vector<std::pair<int, int>> drawPath;
+	std::vector<std::pair<double, double>> drawPath;
 	vector <std::pair<int, int>> lines[10];
 
 	//ima try to make a circle struct that holds coordinates
@@ -45,7 +45,18 @@ public:
 				 fl_circle(mouseX, mouseY, brushSize);
 				 if (isDrawing = true) break;
 			 }
-		 
+			 if (isDrawing = true) {
+				 for (int b = 0; b < drawPath.size(); b++) {
+				 	 // Draw filled arc
+				 fl_begin_polygon();
+				 fl_arc(drawPath[b].first , drawPath[b].second, brushSize, 0.0, 360);
+				 fl_end_polygon();
+				 //lines[1] = drawPath;
+				 redraw();
+				 if (isDrawing = false) break;
+				 }
+			 }
+			 
 
 		 }
 
@@ -61,12 +72,12 @@ public:
 		 switch (event) {
 		 case FL_PUSH:
 			 isDrawing = true;
-			 redraw();
-			 x = Fl::event_x(); //returns mouse position event at x and y 
-			 y = Fl::event_y();
+			 //redraw();
+			 mouseX = Fl::event_x(); //returns mouse position event at x and y 
+			 mouseY = Fl::event_y();
 			 //coordinates.clear(); //add new points to the coordinates vector
-			 drawPath.push_back(std::make_pair(x, y));
-			 coordinates.push_back(std::make_pair(x, y));
+			 drawPath.push_back(std::make_pair(mouseX, mouseY));
+			 //coordinates.push_back(std::make_pair(mouseX, mouseY));
 			  //mouse is considered to be drawing if button is pressed
 			 redraw(); //redraw tells the widget to update on the screen
 			 return 1;
@@ -74,15 +85,15 @@ public:
 		 case FL_DRAG:
 			 //coordinates.clear();
 			 isDrawing = true;
-			 x = Fl::event_x();
-			 y = Fl::event_y();
-			 drawPath.push_back(std::make_pair(x , y));
-			 coordinates.push_back(std::make_pair(x, y));
+			 mouseX = Fl::event_x();
+			 mouseY = Fl::event_y();
+			 drawPath.push_back(std::make_pair(mouseX , mouseY));
+			 coordinates.push_back(std::make_pair(mouseX, mouseY));
 			 redraw();
 			 return 1;
 
 		 case FL_RELEASE:
-			 drawPath.clear();
+			 //drawPath.clear();
 			 isDrawing = false;
 			 
 			 redraw();
@@ -91,6 +102,8 @@ public:
 
 		 case FL_MOVE:
 			 isDrawing = false;
+
+			 coordinates.clear();
 				 mouseX = Fl::event_x();
 				 mouseY = Fl::event_y();
 				 coordinates.push_back(std::make_pair(mouseX, mouseY));
