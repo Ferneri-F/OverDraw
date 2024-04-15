@@ -1,5 +1,8 @@
+#include <FL/Fl.H>
+#include <FL/Fl_Window.h>
 #include <Fl/FL_Button.H>
 #include <Fl_Widget.H>
+
 
 class DraggableWindow : public Fl_Window {
 
@@ -7,7 +10,7 @@ private:
     int previous_x, previous_y;
     bool dragging;
     int dragHeight;
-
+    
 
     static void TimerCallback(void* data) { //timer that refreshes the page every 0.01ms
         DraggableWindow* window = static_cast<DraggableWindow*>(data);
@@ -18,6 +21,7 @@ private:
         }
     }
 public:
+
     DraggableWindow(int x, int y, int w, int h, const char* label = 0)
         : Fl_Window(x, y, w, h, label), dragging(false), dragHeight(15) {}
 
@@ -26,7 +30,7 @@ public:
         if (button->Fl_Widget::when() & FL_WHEN_RELEASE) printf("test tset test"); //correct way to check for FL_WHEN_RELEASE of button
     }
     
-
+    
 
     int handle(int event)  {
         switch (event) {
@@ -39,7 +43,7 @@ public:
                 redraw();
                 return 1;
             }
-            else break;
+            else return 1;
         case FL_RELEASE:
             dragging = false;
             //position(Fl::event_x, Fl::event_y);

@@ -9,62 +9,136 @@
 #include <iostream>
 #include <vector>
 #include "menu.h"
-#include "paintWindow.h"
+//#include "paintWindow.h"
 #include "topBar.h"
 #include "betterPainter.h"
+#include "BetterMenu.h"
+#include <thread>
+#include <Fl_Slider.H>
 
-using namespace std; 
+using namespace std;  
 
-//void lineSave() {
-//
-//    pair<int, int> coord[5] = { make_pair(10,3), make_pair(20,5), make_pair(30, 6), make_pair(40, 8)};
-//
-//    for (size_t i = 1; i < 5; i++) {
-//        fl_line(coord[i - 1].first, coord[i - 1].second,
-//            coord[i].first, coord[i].second);
-//
+//sets button_cb to be a callback function for the Fl_widget pointer
+void button_cb(Fl_Widget* button, void* data) { DraggableWindow::whenPushed(button, nullptr); } //correct way to do callback functions
+
+//void setScale(Fl_Widget* window, void* data) {
+//    int dy = Fl::event_dy();
+//    if (dy > 0) {
+//        window->resize(window->y(), window->x(), window->w() + dy, window->h() + dy);
+//        std::cout << "\nWHEEL UP";
+//    }
+//    else if (dy < 0) {
+//        window->resize(window->y(), window->x(), window->w() + dy, window->h() + dy);
 //    }
 //}
 
-//sets button_cb to be a callback function for the Fl_widget pointer
-void button_cb(Fl_Widget* button, void*) { DraggableWindow::whenPushed(button, nullptr); } //correct way to do callback functions
+//static void setScale_cb(Fl_Widget* window, void* data) { BetterPainter::setScale(FL_MOUSEWHEEL, window, nullptr); }
 
+
+
+//infinite loop that will run in the background that checks for mousewheel scroll
+//it sizes the paint window up and down
+void sizeLoop(BetterPainter* win) {
+    for (;;) {
+     
+        if (Fl::event() == FL_MOUSEWHEEL) {
+            if (Fl::event_dy() > 0) {
+                win->size(win->w() + 25, win->h() + 25);
+                
+                std::cout << "\nScroll Up";
+            }
+            else if (Fl::event_dy() < 0) {
+                win->size(win->w() - 25, win->h() - 25);
+                std::cout << "\nScroll Down";
+            }
+                //if (win->isScrolling == false) break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+//bool mouseOut;
+//void whenMouseMoves(Fl_Widget* win, void* data) {
+//    if (Fl::belowmouse() != win) {
+//        mouseOut = true;
+//        printf("\nMouse Out Of Window");
+//    }
+//    else {
+//        mouseOut = false;
+//    }
+//}
+void mouse_cb(Fl_Widget* win, void* data) { BetterPainter::whenMouseMoves , nullptr; }
+
+void (BetterPainter::* sizeLoopPtr)(BetterPainter*);
 
 int main(int argc, char** argv) {
+    Fl::scheme("gleam");
    
-    Fl_Window* window = new Fl_Window(500, 500, "Drawing");
-    window->color(FL_WHITE);
-
-    topBar* bar = new topBar(1, 1, 500, 30, "bar");
-    BetterPainter betPaint(1, 30, 500, 500, "Testing");
+     Fl_Window* window = new Fl_Window(500, 500, "Drawing");
+     
     
-    //betPaint.draw();
+
+     BetterPainter* betPaint = new BetterPainter(1, 30, 500, 500, "Testing");
+     //betPaint->focus(betPaint);
+     betPaint->callback(BetterPainter::whenMouseMoves);
+     betPaint->align(FL_ALIGN_CENTER);
+        betPaint->end();
+       
+        topBar* bar = new topBar(1, 1, 500, 30, "bar");
+
+            bar->add("File/New", 0, bar_cb);
+            bar->add("File/Open", 0, bar_cb);
+            bar->add("File/Save", 0, bar_cb);
+            bar->add("File/Undo", 0, bar_cb, 0 , FL_MENU_DIVIDER);
+            bar->add("File/Quit", 0, bar_cb);
+            bar->add("Edit/Brush", 0, bar_cb);
+            bar->add("Edit/Preferences", 0, bar_cb);
+            bar->add("View/Layers", 0, bar_cb);
+        
+        //thread for zoom but there must be a better solution 
+    std::thread t1(sizeLoop , betPaint );
+    
+    window->color(FL_GRAY);
+    betPaint->color(FL_WHITE);
+    //betPaint->callback(setScale_cb);
+    //betPaint->handle(FL_MOUSEWHEEL);
+    
+    //betPaint->BetterPainter::setScale(betPaint, nullptr);
+    
+    //betPaint->draw();
     //paintWindow* paintWin = new paintWindow(500, 500, 1, 30, "");
 
-    //DraggableWindow* menu = new DraggableWindow(100, 100, 50, 70);
+   
+    //menu->callback(menuMouseOver_cb);
     
-    //menu->box(FL_UP_BOX);
-    //menu->position(10, 10);
 
   
-    //Fl_Button* pen = new Fl_Button(5, 15, 40, 20, "Pen");
+   // Fl_Button* pen = new Fl_Button(5, 15, 40, 20, "Pen");
     //Fl_Button* eraser = new Fl_Button(5, 40, 40, 20, "Eraser"); 
     //pen->color(FL_BLACK);
     //pen->callback(button_cb);
-    //menu->whenPushed(pen, nullptr); //currently TRYNING to make this callback shit work
-
-    //paintWin->redraw();
+    //menu->whenPushed(pen, nullptr); 
+    
+    
     
     
     //paintWin->redraw();
-    
     
     window->end();
+    //betPaint->show();
     window->show();
-    return Fl::run();
 
+   
+
+    return Fl::run();
+    
     return 0;
 }
+
+
+
+
+
 
 //Current issues/ future changes:
 //
@@ -76,3 +150,9 @@ int main(int argc, char** argv) {
 //- menu, with colors, and eraser maybe more tools
 //- layers
 //- 
+
+// 4/5/2024: zooming in and out works with the mouse wheel. need to make it smoother or something,
+// at this point its morre like resizing the paint window. need to work on the scale of the lines.
+// need to work on a move tool
+// STILL NEED TO WORK ON SAVING THE LINES JESUS CHRIST
+// 
